@@ -7,13 +7,25 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if defined(__APPLE__)
+// [port] CHANGED: Removed `#if defined(__APPLE__)` (over the whole file). See
+// [port] [macho].
 
 #include "RegisterContextDarwin_arm.h"
 
+// [port] CHANGED: Added `defined(__APPLE__)` and the `#else` branch. See
+// [port] [macho].
+#if defined(__APPLE__)
 // C Includes
 #include <mach/mach_types.h>
 #include <mach/thread_act.h>
+#else
+// [port] All headers are from
+// [port] `/deps/apple-headers/MacOSX10.13.sdk/usr/include/`.
+
+// [port] From <mach/kern_return.h>.
+#define KERN_SUCCESS 0
+#define KERN_INVALID_ARGUMENT 4
+#endif
 
 // C++ Includes
 // Other libraries and framework includes
@@ -1766,5 +1778,3 @@ bool RegisterContextDarwin_arm::ClearHardwareWatchpoint(uint32_t hw_index) {
   }
   return false;
 }
-
-#endif
