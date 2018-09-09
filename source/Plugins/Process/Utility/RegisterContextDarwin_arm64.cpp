@@ -8,8 +8,27 @@
 //
 //===----------------------------------------------------------------------===//
 
+// [port] CHANGED: Removed `#if defined(__APPLE__)` (over the whole file). See
+// [port] [macho].
+
 #include "RegisterContextDarwin_arm64.h"
 #include "RegisterContextDarwinConstants.h"
+
+// [port] CHANGED: Added `defined(__APPLE__)` and the `#else` branch. See
+// [port] [macho].
+#if defined(__APPLE__)
+// C Includes
+#include <mach/mach_types.h>
+#include <mach/thread_act.h>
+#include <sys/sysctl.h>
+#else
+// [port] All headers are from
+// [port] `/deps/apple-headers/MacOSX10.13.sdk/usr/include/`.
+
+// [port] From <mach/kern_return.h>.
+#define KERN_SUCCESS 0
+#define KERN_INVALID_ARGUMENT 4
+#endif
 
 // C++ Includes
 // Other libraries and framework includes
@@ -57,13 +76,11 @@ using namespace lldb_private;
    sizeof(RegisterContextDarwin_arm64::EXC))
 
 #define DEFINE_DBG(reg, i)                                                     \
-  #reg, NULL,                                                                  \
-      sizeof(((RegisterContextDarwin_arm64::DBG *) NULL)->reg[i]),             \
-              DBG_OFFSET_NAME(reg[i]), eEncodingUint, eFormatHex,              \
-                              {LLDB_INVALID_REGNUM, LLDB_INVALID_REGNUM,       \
-                               LLDB_INVALID_REGNUM, LLDB_INVALID_REGNUM,       \
-                               LLDB_INVALID_REGNUM },                          \
-                               NULL, NULL, NULL, 0
+#reg, NULL, sizeof(((RegisterContextDarwin_arm64::DBG *)NULL)->reg[i]),      \
+      DBG_OFFSET_NAME(reg[i]), eEncodingUint, eFormatHex,                      \
+      {LLDB_INVALID_REGNUM, LLDB_INVALID_REGNUM, LLDB_INVALID_REGNUM,          \
+       LLDB_INVALID_REGNUM, LLDB_INVALID_REGNUM },                             \
+       NULL, NULL, NULL, 0
 #define REG_CONTEXT_SIZE                                                       \
   (sizeof(RegisterContextDarwin_arm64::GPR) +                                  \
    sizeof(RegisterContextDarwin_arm64::FPU) +                                  \
@@ -149,7 +166,10 @@ const size_t k_num_exc_registers = llvm::array_lengthof(g_exc_regnums);
 //----------------------------------------------------------------------
 static const RegisterSet g_reg_sets[] = {
     {
-        "General Purpose Registers", "gpr", k_num_gpr_registers, g_gpr_regnums,
+        "General Purpose Registers",
+        "gpr",
+        k_num_gpr_registers,
+        g_gpr_regnums,
     },
     {"Floating Point Registers", "fpu", k_num_fpu_registers, g_fpu_regnums},
     {"Exception State Registers", "exc", k_num_exc_registers, g_exc_regnums}};

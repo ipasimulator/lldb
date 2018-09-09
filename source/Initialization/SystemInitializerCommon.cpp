@@ -20,6 +20,9 @@
 #include "lldb/Utility/Log.h"
 #include "lldb/Utility/Timer.h"
 
+// [port] CHANGED: Removed `#if defined(__APPLE__)`. See [macho].
+#include "Plugins/ObjectFile/Mach-O/ObjectFileMachO.h"
+
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__)
 #include "Plugins/Process/POSIX/ProcessPOSIXLog.h"
 #endif
@@ -80,6 +83,9 @@ void SystemInitializerCommon::Initialize() {
   // Apple/Darwin hosted plugins
   //----------------------------------------------------------------------
   ObjectContainerUniversalMachO::Initialize();
+
+  // [port] CHANGED: Removed `#if defined(__APPLE__)`. See [macho].
+  ObjectFileMachO::Initialize();
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__)
   ProcessPOSIXLog::Initialize();
