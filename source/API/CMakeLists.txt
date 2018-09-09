@@ -14,7 +14,8 @@ endif()
 
 get_property(LLDB_ALL_PLUGINS GLOBAL PROPERTY LLDB_PLUGINS)
 
-add_lldb_library(liblldb SHARED
+# [port] CHANGED: Removed `SHARED`. We want a static library.
+add_lldb_library(liblldb
   SBAddress.cpp
   SBAttachInfo.cpp
   SBBlock.cpp
